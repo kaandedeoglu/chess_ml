@@ -8,8 +8,26 @@ from chessml.move_encoding import move_to_index, TOTAL_MOVE_COUNT
 from chessml.train.supervised_model import ChessCNN
 from chessml.agents.mcts import run_mcts
 
+import logging
+from datetime import datetime
+
+# Configure logging
+timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+log_path = f"self_play_{timestamp}.log"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s",
+    handlers=[
+        logging.StreamHandler(),  # prints to stdout
+        logging.FileHandler(log_path)  # writes to a file
+    ]
+)
+
+logger = logging.getLogger(__name__)
+
 def generate_self_play_games(model_path, output_path, num_games=100, num_simulations=100, device="cpu"):
-    print(f"Using device: {device}, CUDA available: {torch.cuda.is_available()}", flush=True)
+    logger.info(f"Using device: {device}, CUDA available: {torch.cuda.is_available()}", flush=True)
     model = ChessCNN().to(device)
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
@@ -18,10 +36,10 @@ def generate_self_play_games(model_path, output_path, num_games=100, num_simulat
     all_policies = []
     all_values = []
 
-    print("🚀 Starting self-play generation...", flush=True)
+    logger.info("🚀 Starting self-play generation...", flush=True)
 
     for game_idx in range(num_games):
-        print(f"\n🎯 Starting game {game_idx + 1}/{num_games}", flush=True)
+        logger.info(f"\n🎯 Starting game {game_idx + 1}/{num_games}", flush=True)
 
         board = chess.Board()
         game_states = []
@@ -48,7 +66,7 @@ def generate_self_play_games(model_path, output_path, num_games=100, num_simulat
             move = np.random.choice(moves, p=visits)
             board.push(move)
 
-            print(f"Turn {board.fullmove_number}, legal moves: {len(list(board.legal_moves))}", flush=True)
+            logger.info(f"Turn {board.fullmove_number}, legal moves: {len(list(board.legal_moves))}", flush=True)
 
         result = board.result()
         if result == "1-0":
@@ -70,7 +88,7 @@ def generate_self_play_games(model_path, output_path, num_games=100, num_simulat
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     np.savez_compressed(output_path, X=X, y=y, z=z)
-    print(f"\n💾 Saved self-play dataset to {output_path}", flush=True)
+    logger.info(f"\n💾 Saved self-play dataset to {output_path}", flush=True)
 
 if __name__ == "__main__":
     generate_self_play_games(
