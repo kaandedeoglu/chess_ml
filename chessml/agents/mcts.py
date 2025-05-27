@@ -61,7 +61,7 @@ class MCTSNode:
         self.total_value += value
         self.mean_value = self.total_value / self.visit_count
 
-def run_mcts(model, root_board, num_simulations=100, c_puct=1.0, device="cpu"):
+def run_mcts(model, root_board, num_simulations=100, c_puct=1.0, device=torch.device("cuda" if torch.cuda.is_available() else "cpu")):
     root = MCTSNode(root_board)
 
     x = torch.tensor(encode_board(root.board), dtype=torch.float32).permute(2, 0, 1).unsqueeze(0).to(device)

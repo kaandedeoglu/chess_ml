@@ -73,6 +73,6 @@ if __name__ == "__main__":
         output_path="data/processed/self_play_large.npz",
         num_games=1000,  # 🔁 scale this up to 5000+ as needed
         num_simulations=100,
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu"),
         verbose=True
     )
