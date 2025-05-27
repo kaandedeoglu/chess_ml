@@ -2,7 +2,7 @@ import os
 import chess
 import torch
 import numpy as np
-from tqdm import trange
+from tqdm import tqdm, trange
 
 from chessml.board_encoding import encode_board
 from chessml.move_encoding import move_to_index, TOTAL_MOVE_COUNT
@@ -37,6 +37,8 @@ def generate_self_play_games(
         while not board.is_game_over():
             move_counts = run_mcts(model, board, num_simulations=num_simulations, device=device)
             total_visits = sum(move_counts.values())
+
+            tqdm.write(f"Game {game_idx}, Turn {board.fullmove_number}, legal moves: {len(list(board.legal_moves))}")
 
             policy = np.zeros(TOTAL_MOVE_COUNT, dtype=np.float32)
             for move, count in move_counts.items():
