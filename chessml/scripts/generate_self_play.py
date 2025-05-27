@@ -19,6 +19,8 @@ def generate_self_play_games(model_path, output_path, num_games=100, num_simulat
     all_policies = []
     all_values = []
 
+    print("Starting..")
+
     for _ in trange(num_games, desc="Generating Self-Play games"):
         board = chess.Board()
         game_states = []
@@ -27,11 +29,6 @@ def generate_self_play_games(model_path, output_path, num_games=100, num_simulat
         while not board.is_game_over():
             move_counts = run_mcts(model, board, num_simulations=num_simulations, device=device)
             total_visits = sum(move_counts.values())
-
-
-            if total_visits == 0:
-                print(f"⚠️ Skipping game {game_idx} — no visits from MCTS")
-                break
 
             policy = np.zeros(TOTAL_MOVE_COUNT, dtype=np.float32)
 
@@ -48,7 +45,7 @@ def generate_self_play_games(model_path, output_path, num_games=100, num_simulat
             board.push(move)
 
             # print(f"Turn {board.fullmove_number}, legal moves: {len(list(board.legal_moves))}")
-            tqdm.write(f"Turn {board.fullmove_number}, legal moves: {len(list(board.legal_moves))}")
+            print(f"Turn {board.fullmove_number}, legal moves: {len(list(board.legal_moves))}", flush=True)
         
         result = board.result
         if result == "1-0":
