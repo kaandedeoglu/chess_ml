@@ -21,6 +21,7 @@ def generate_self_play_games(
     device="cpu",
     verbose=False
 ):
+    print("Starting..")
     model = ChessCNN().to(device)
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
