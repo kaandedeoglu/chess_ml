@@ -11,7 +11,7 @@ def train_model(
     lr=1e-3,
     device=None
 ):
-    device = torch.device(device or ("mps" if torch.backends.mps.is_available() else "cpu"))
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"🧠 Using device: {device}")
 
     # Dataset + DataLoader

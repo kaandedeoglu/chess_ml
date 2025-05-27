@@ -70,6 +70,6 @@ if __name__ == "__main__":
         output_path="data/processed/self_play.npz",
         num_games=50,
         num_simulations=100,
-        device="cpu" if torch.backends.mps.is_available() else "cpu"
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     )
 

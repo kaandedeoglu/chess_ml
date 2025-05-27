@@ -5,7 +5,7 @@ from chessml.train.supervised_model import ChessCNN
 from chessml.board_encoding import encode_board
 from chessml.move_encoding import move_to_index, index_to_move
 
-device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def pick_model_move(model, board):
     x = encode_board(board)

@@ -22,7 +22,7 @@ DARK_COLOR = (181, 136, 99)
 
 PIECE_IMAGES = {}
 
-device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def draw_board(screen, board):
     colors = [LIGHT_COLOR, DARK_COLOR]
