@@ -2,7 +2,7 @@ import os
 import chess
 import torch
 import numpy as np
-from tqdm import trange
+from tqdm import tqdm, trange
 
 from chessml.board_encoding import encode_board
 from chessml.move_encoding import move_to_index, TOTAL_MOVE_COUNT
@@ -10,6 +10,7 @@ from chessml.train.supervised_model import ChessCNN
 from chessml.agents.mcts import run_mcts
 
 def generate_self_play_games(model_path, output_path, num_games=100, num_simulations=100, device="cpu"):
+    print(f"Using device: {device}, CUDA available: {torch.cuda.is_available()}")
     model = ChessCNN().to(device)
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
@@ -27,6 +28,11 @@ def generate_self_play_games(model_path, output_path, num_games=100, num_simulat
             move_counts = run_mcts(model, board, num_simulations=num_simulations, device=device)
             total_visits = sum(move_counts.values())
 
+
+            if total_visits == 0:
+                print(f"⚠️ Skipping game {game_idx} — no visits from MCTS")
+                break
+
             policy = np.zeros(TOTAL_MOVE_COUNT, dtype=np.float32)
 
             for move, count in move_counts.items():
@@ -40,7 +46,9 @@ def generate_self_play_games(model_path, output_path, num_games=100, num_simulat
             visits /= visits.sum()
             move = np.random.choice(moves, p=visits)
             board.push(move)
-            print(f"Turn {board.fullmove_number}, legal moves: {len(list(board.legal_moves))}")
+
+            # print(f"Turn {board.fullmove_number}, legal moves: {len(list(board.legal_moves))}")
+            tqdm.write(f"Turn {board.fullmove_number}, legal moves: {len(list(board.legal_moves))}")
         
         result = board.result
         if result == "1-0":

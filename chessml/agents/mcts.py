@@ -65,13 +65,18 @@ def run_mcts(model, root_board, num_simulations=100, c_puct=1.0, device=torch.de
     root = MCTSNode(root_board)
 
     x = torch.tensor(encode_board(root.board), dtype=torch.float32).permute(2, 0, 1).unsqueeze(0).to(device)
+    import time
+    start_time = time.time()
+
     with torch.no_grad():
         policy_logits, value = model(x)
         policy_probs = torch.softmax(policy_logits, dim=1)[0]
     root.expand(policy_probs)
     root.update(value.item())
 
-    for _ in range(num_simulations):
+    for sim in range(num_simulations):
+        sim_start = time.time()
+
         node = root
         search_path = [node]
 
@@ -93,5 +98,10 @@ def run_mcts(model, root_board, num_simulations=100, c_puct=1.0, device=torch.de
         for n in reversed(search_path):
             n.update(leaf_value if n.board.turn == root.board.turn else -leaf_value)
 
+        if sim == 0 or sim == num_simulations - 1:
+            print(f"    🔁 MCTS sim {sim+1}/{num_simulations} took {time.time() - sim_start:.2f}s")
+
+
+    print(f"    ⏳ MCTS total time: {time.time() - start_time:.2f}s")
     move_counts = {move: child.visit_count for move, child in root.children.items()}
     return move_counts
