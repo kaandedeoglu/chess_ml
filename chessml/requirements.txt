@@ -1,0 +1,16 @@
+# Core ML + utils
+torch>=2.1
+torchvision
+numpy>=1.23
+scikit-learn
+matplotlib
+tqdm
+pygame
+cairosvg
+
+# Chess tools
+python-chess
+
+# RL (optional)
+stable-baselines3
+gym
